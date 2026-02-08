@@ -25,17 +25,23 @@ bool scanPort(const char* ip, int port) {
 
 int main(int argc, char* argv[]) {
 
-    // Check user provided IP
-    if (argc != 2) {
-        std::cout << "Usage: ./scanner <ip>\n";
+    // Expect: ip start_port end_port
+    if (argc != 4) {
+        std::cout << "Usage: ./scanner <ip> <start_port> <end_port>\n";
         return 1;
     }
 
     const char* ip = argv[1];
 
-    std::cout << "Scanning " << ip << "...\n\n";
+    int startPort = std::stoi(argv[2]);
+    int endPort   = std::stoi(argv[3]);
 
-    for (int port = 1; port <= 1024; port++) {
+    std::cout << "Scanning " << ip
+              << " from port "
+              << startPort << " to "
+              << endPort << "...\n\n";
+
+    for (int port = startPort; port <= endPort; port++) {
         if (scanPort(ip, port)) {
             std::cout << "[OPEN] Port " << port << "\n";
         }

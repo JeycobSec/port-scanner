@@ -23,8 +23,15 @@ bool scanPort(const char* ip, int port) {
     return (result == 0);
 }
 
-int main() {
-    const char* ip = "127.0.0.1";
+int main(int argc, char* argv[]) {
+
+    // Check user provided IP
+    if (argc != 2) {
+        std::cout << "Usage: ./scanner <ip>\n";
+        return 1;
+    }
+
+    const char* ip = argv[1];
 
     std::cout << "Scanning " << ip << "...\n\n";
 
@@ -37,3 +44,4 @@ int main() {
     std::cout << "\nScan complete.\n";
     return 0;
 }
+

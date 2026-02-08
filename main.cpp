@@ -4,6 +4,12 @@
 #include <unistd.h>
 #include <thread>
 #include <vector>
+#include <netdb.h>
+// Terminal colors
+#define GREEN  "\033[32m"
+#define RED    "\033[31m"
+#define YELLOW "\033[33m"
+#define RESET  "\033[0m"
 
 /*
     Attempts to connect to a TCP port.
@@ -34,6 +40,15 @@ bool scanPort(const char* ip, int port) {
     return (result == 0);
 }
 
+std::string getServiceName(int port) {
+    struct servent* service = getservbyport(htons(port), "tcp");
+
+    if (service)
+        return service->s_name;
+
+    return "unknown";
+}
+
 int main(int argc, char* argv[]) {
 
     if (argc != 4) {
@@ -45,17 +60,23 @@ int main(int argc, char* argv[]) {
     int startPort = std::stoi(argv[2]);
     int endPort   = std::stoi(argv[3]);
 
-    std::cout << "Scanning " << ip
+    std::cout << YELLOW << "Scanning " << ip
               << " from port "
               << startPort << " to "
-              << endPort << "...\n\n";
+              << endPort << "...\n\n" << RESET;
 
     std::vector<std::thread> threads;
 
     for (int port = startPort; port <= endPort; port++) {
         threads.emplace_back([ip, port]() {
             if (scanPort(ip, port)) {
-                std::cout << "[OPEN] Port " << port << "\n";
+                std::cout << GREEN
+          << "[OPEN] Port "
+          << port
+          << " (" << getServiceName(port) << ")"
+          << RESET << "\n";
+
+
             }
         });
     }

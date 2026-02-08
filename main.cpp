@@ -11,6 +11,15 @@ bool scanPort(const char* ip, int port) {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) return false;
 
+    // ----- ADD TIMEOUT (1 second) -----
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
+    // ---------------------------------
+
     sockaddr_in target {};
     target.sin_family = AF_INET;
     target.sin_port = htons(port);
@@ -22,6 +31,7 @@ bool scanPort(const char* ip, int port) {
 
     return (result == 0);
 }
+
 
 int main(int argc, char* argv[]) {
 

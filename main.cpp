@@ -2,6 +2,8 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <thread>
+#include <vector>
 
 /*
     Attempts to connect to a TCP port.
@@ -32,17 +34,14 @@ bool scanPort(const char* ip, int port) {
     return (result == 0);
 }
 
-
 int main(int argc, char* argv[]) {
 
-    // Expect: ip start_port end_port
     if (argc != 4) {
         std::cout << "Usage: ./scanner <ip> <start_port> <end_port>\n";
         return 1;
     }
 
     const char* ip = argv[1];
-
     int startPort = std::stoi(argv[2]);
     int endPort   = std::stoi(argv[3]);
 
@@ -51,10 +50,19 @@ int main(int argc, char* argv[]) {
               << startPort << " to "
               << endPort << "...\n\n";
 
+    std::vector<std::thread> threads;
+
     for (int port = startPort; port <= endPort; port++) {
-        if (scanPort(ip, port)) {
-            std::cout << "[OPEN] Port " << port << "\n";
-        }
+        threads.emplace_back([ip, port]() {
+            if (scanPort(ip, port)) {
+                std::cout << "[OPEN] Port " << port << "\n";
+            }
+        });
+    }
+
+    // Wait for all threads
+    for (auto& t : threads) {
+        t.join();
     }
 
     std::cout << "\nScan complete.\n";
